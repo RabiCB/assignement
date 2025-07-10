@@ -1,7 +1,6 @@
 <?php 
 include('db.php'); 
 
-// Check if created_at column exists
 $created_at_exists = false;
 $column_check = $conn->query("SHOW COLUMNS FROM albums LIKE 'created_at'");
 if ($column_check && $column_check->num_rows > 0) {
@@ -14,7 +13,6 @@ $errors = [];
 $success = '';
 $existing_tracks = [];
 
-// Check if tracks table exists
 $tracks_exist = false;
 $table_check = $conn->query("SHOW TABLES LIKE 'tracks'");
 if ($table_check && $table_check->num_rows > 0) {
@@ -31,7 +29,6 @@ if (isset($_GET['id'])) {
         $album = $result->fetch_assoc();
         $isEdit = true;
         
-        // Get existing tracks if editing
         if ($tracks_exist) {
             $tracks_stmt = $conn->prepare("SELECT TrackId, Name, Duration FROM tracks WHERE AlbumId = ? ORDER BY TrackId");
             $tracks_stmt->bind_param("i", $id);
@@ -50,32 +47,50 @@ if (isset($_GET['id'])) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id = $_POST['AlbumId'];
     $title = trim($_POST['Title']);
-    $artist = intval($_POST['ArtistId']);
+    $artist_option = $_POST['artist_option']; 
+    $artist_id = 0;
     
-    // Get track data
     $track_names = isset($_POST['track_names']) ? $_POST['track_names'] : [];
     $track_durations = isset($_POST['track_durations']) ? $_POST['track_durations'] : [];
     
-    // Validation
     if (empty($title)) {
         $errors[] = "Album title is required.";
     } elseif (strlen($title) > 95) {
         $errors[] = "Album title must be 95 characters or less.";
     }
     
-    if ($artist <= 0) {
-        $errors[] = "Please select a valid artist.";
-    } else {
-        // Check if artist exists
-        $artist_check = $conn->prepare("SELECT ArtistId FROM artists WHERE ArtistId = ?");
-        $artist_check->bind_param("i", $artist);
-        $artist_check->execute();
-        if ($artist_check->get_result()->num_rows == 0) {
-            $errors[] = "Selected artist does not exist.";
+    if ($artist_option == 'existing') {
+        $artist_id = intval($_POST['existing_artist']);
+        if ($artist_id <= 0) {
+            $errors[] = "Please select a valid artist.";
+        } else {
+            $artist_check = $conn->prepare("SELECT ArtistId FROM artists WHERE ArtistId = ?");
+            $artist_check->bind_param("i", $artist_id);
+            $artist_check->execute();
+            if ($artist_check->get_result()->num_rows == 0) {
+                $errors[] = "Selected artist does not exist.";
+            }
         }
+    } elseif ($artist_option == 'new') {
+        $new_artist_name = trim($_POST['new_artist_name']);
+        if (empty($new_artist_name)) {
+            $errors[] = "New artist name is required.";
+        } elseif (strlen($new_artist_name) > 120) {
+            $errors[] = "Artist name must be 120 characters or less.";
+        } else {
+            $existing_artist_check = $conn->prepare("SELECT ArtistId FROM artists WHERE Name = ?");
+            $existing_artist_check->bind_param("s", $new_artist_name);
+            $existing_artist_check->execute();
+            $existing_result = $existing_artist_check->get_result();
+            
+            if ($existing_result->num_rows > 0) {
+                $errors[] = "An artist with this name already exists. Please select from existing artists.";
+            }
+        }
+    } else {
+        $errors[] = "Please select an artist option.";
     }
     
-    // Validate tracks
     if ($tracks_exist && !empty($track_names)) {
         foreach ($track_names as $index => $track_name) {
             $track_name = trim($track_name);
@@ -84,7 +99,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $errors[] = "Track name '" . substr($track_name, 0, 30) . "...' is too long (max 120 characters).";
                 }
                 
-                // Validate duration (convert mm:ss to seconds)
                 if (!empty($track_durations[$index])) {
                     $duration = $track_durations[$index];
                     if (!preg_match('/^\d{1,2}:\d{2}$/', $duration)) {
@@ -95,39 +109,44 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
     
-    // Check for duplicate album title by same artist
     if (empty($errors)) {
-        if ($id) {
-            $dup_check = $conn->prepare("SELECT AlbumId FROM albums WHERE Title = ? AND ArtistId = ? AND AlbumId != ?");
-            $dup_check->bind_param("sii", $title, $artist, $id);
-        } else {
-            $dup_check = $conn->prepare("SELECT AlbumId FROM albums WHERE Title = ? AND ArtistId = ?");
-            $dup_check->bind_param("si", $title, $artist);
-        }
-        $dup_check->execute();
-        if ($dup_check->get_result()->num_rows > 0) {
-            $errors[] = "This artist already has an album with this title.";
-        }
-    }
-    
-    if (empty($errors)) {
-        // Start transaction
         $conn->begin_transaction();
         
         try {
-            // Save album
+            if ($artist_option == 'new') {
+                $insert_artist = $conn->prepare("INSERT INTO artists (Name) VALUES (?)");
+                $insert_artist->bind_param("s", $new_artist_name);
+                if (!$insert_artist->execute()) {
+                    throw new Exception("Failed to create new artist: " . $conn->error);
+                }
+                $artist_id = $conn->insert_id;
+            }
+
+            if ($id) {
+                $dup_check = $conn->prepare("SELECT AlbumId FROM albums WHERE Title = ? AND ArtistId = ? AND AlbumId != ?");
+                $dup_check->bind_param("sii", $title, $artist_id, $id);
+            } else {
+                $dup_check = $conn->prepare("SELECT AlbumId FROM albums WHERE Title = ? AND ArtistId = ?");
+                $dup_check->bind_param("si", $title, $artist_id);
+            }
+            $dup_check->execute();
+            if ($dup_check->get_result()->num_rows > 0) {
+                throw new Exception("This artist already has an album with this title.");
+            }
+            
+
             if ($id) {
                 $stmt = $conn->prepare("UPDATE albums SET Title = ?, ArtistId = ? WHERE AlbumId = ?");
-                $stmt->bind_param("sii", $title, $artist, $id);
+                $stmt->bind_param("sii", $title, $artist_id, $id);
                 $success = "Album updated successfully!";
             } else {
-                // Insert with created_at if column exists
+                
                 if ($created_at_exists) {
                     $stmt = $conn->prepare("INSERT INTO albums (Title, ArtistId, created_at) VALUES (?, ?, NOW())");
                 } else {
                     $stmt = $conn->prepare("INSERT INTO albums (Title, ArtistId) VALUES (?, ?)");
                 }
-                $stmt->bind_param("si", $title, $artist);
+                $stmt->bind_param("si", $title, $artist_id);
                 $success = "Album created successfully!";
             }
             
@@ -139,33 +158,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $id = $conn->insert_id;
             }
             
-            // Save tracks if tracks table exists
+           
             if ($tracks_exist && !empty($track_names)) {
-                // Delete existing tracks if editing
+              
                 if ($isEdit) {
                     $delete_tracks = $conn->prepare("DELETE FROM tracks WHERE AlbumId = ?");
                     $delete_tracks->bind_param("i", $id);
                     $delete_tracks->execute();
                 }
                 
-                // Insert new tracks
-                $track_insert = $conn->prepare("INSERT INTO tracks (Name, AlbumId, Duration) VALUES (?, ?, ?)");
+                
+                $track_insert = $conn->prepare("INSERT INTO tracks (Name, AlbumId, Milliseconds) VALUES (?, ?, ?)");
                 
                 foreach ($track_names as $index => $track_name) {
                     $track_name = trim($track_name);
                     if (!empty($track_name)) {
-                        // Convert duration to seconds
-                        $duration_seconds = 0;
+
+                        $duration_ms = 0;
                         if (!empty($track_durations[$index])) {
                             $duration_parts = explode(':', $track_durations[$index]);
                             if (count($duration_parts) == 2) {
                                 $minutes = intval($duration_parts[0]);
                                 $seconds = intval($duration_parts[1]);
-                                $duration_seconds = ($minutes * 60) + $seconds;
+                                $duration_ms = (($minutes * 60) + $seconds) * 1000;
                             }
                         }
                         
-                        $track_insert->bind_param("sii", $track_name, $id, $duration_seconds);
+                        $track_insert->bind_param("sii", $track_name, $id, $duration_ms);
                         if (!$track_insert->execute()) {
                             throw new Exception("Failed to save track '$track_name': " . $conn->error);
                         }
@@ -174,8 +193,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
             
             $conn->commit();
-            
-            // Redirect after 2 seconds
+           
             header("refresh:2;url=album_view.php?id=$id");
             
         } catch (Exception $e) {
@@ -185,7 +203,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// Get all artists for dropdown
+
 $artists_result = $conn->query("SELECT ArtistId, Name FROM artists ORDER BY Name");
 ?>
 <!DOCTYPE html>
@@ -199,6 +217,65 @@ $artists_result = $conn->query("SELECT ArtistId, Name FROM artists ORDER BY Name
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
+        .artist-selection {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            margin: 20px 0;
+        }
+        
+        .artist-option {
+            margin: 15px 0;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .artist-option.selected {
+            border-color: #667eea;
+            background: #fafbff;
+        }
+        
+        .artist-option input[type="radio"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+        
+        .artist-option label {
+            font-weight: 600;
+            color: #495057;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        
+        .artist-fields {
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .artist-fields.active {
+            display: block;
+        }
+        
+        .new-artist-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: "Roboto", sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .new-artist-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
         .tracks-section {
             margin-top: 30px;
             padding: 25px;
@@ -373,21 +450,47 @@ $artists_result = $conn->query("SELECT ArtistId, Name FROM artists ORDER BY Name
                     <small>Maximum 95 characters</small>
                 </div>
                 
-                <div class="form-group">
-                    <label for="artist">Artist *</label>
-                    <select id="artist" name="ArtistId" required>
-                        <option value="">Select an artist</option>
-                        <?php if ($artists_result): ?>
-                            <?php $artists_result->data_seek(0); // Reset pointer ?>
-                            <?php while($artist_row = $artists_result->fetch_assoc()): ?>
-                                <option value="<?= $artist_row['ArtistId'] ?>" 
-                                        <?= $album['ArtistId'] == $artist_row['ArtistId'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($artist_row['Name']) ?>
-                                </option>
-                            <?php endwhile; ?>
-                        <?php endif; ?>
-                    </select>
-                    <small>Don't see the artist? <a href="artist_form.php" target="_blank">Add a new artist</a></small>
+                <div class="artist-selection">
+                    <h3>🎤 Artist Selection</h3>
+                    
+                    <div class="artist-option" id="existing-option">
+                        <label>
+                            <input type="radio" name="artist_option" value="existing" 
+                                   <?= $isEdit ? 'checked' : '' ?> onchange="toggleArtistFields()">
+                            Select Existing Artist
+                        </label>
+                        <div class="artist-fields" id="existing-fields">
+                            <select name="existing_artist"  class="form-group filter-select">
+                                <option  value="">Choose an artist</option>
+                                <?php if ($artists_result): ?>
+                                    <?php $artists_result->data_seek(0); ?>
+                                    <?php while($artist_row = $artists_result->fetch_assoc()): ?>
+                                        <option value="<?= $artist_row['ArtistId'] ?>" 
+                                                <?= $album['ArtistId'] == $artist_row['ArtistId'] ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($artist_row['Name']) ?>
+                                        </option>
+                                    <?php endwhile; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="artist-option" id="new-option">
+                        <label>
+                            <input type="radio" name="artist_option" value="new" 
+                                   <?= !$isEdit ? 'checked' : '' ?> onchange="toggleArtistFields()">
+                            Add New Artist
+                        </label>
+                        <div class="artist-fields" id="new-fields">
+                            <input type="text" name="new_artist_name" 
+                                   placeholder="Enter new artist name" 
+                                   maxlength="120" 
+                                   class="new-artist-input">
+                            <small style="color: #6c757d; margin-top: 5px; display: block;">
+                                Maximum 120 characters. Artist will be created automatically.
+                            </small>
+                        </div>
+                    </div>
                 </div>
                 
                 <?php if ($tracks_exist): ?>
@@ -415,7 +518,7 @@ $artists_result = $conn->query("SELECT ArtistId, Name FROM artists ORDER BY Name
                     </div>
                     
                     <div id="tracksContainer">
-                        <!-- Initial track row -->
+                       
                         <div class="track-row">
                             <input type="text" name="track_names[]" placeholder="Enter track name" class="track-input" maxlength="120">
                             <input type="text" name="track_durations[]" placeholder="3:45" pattern="\d{1,2}:\d{2}" class="track-input">
@@ -428,7 +531,7 @@ $artists_result = $conn->query("SELECT ArtistId, Name FROM artists ORDER BY Name
                     <div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 4px; font-size: 0.9rem;">
                         <strong>Tips:</strong>
                         <ul style="margin: 5px 0 0 20px;">
-                            <li>Track names are required (max 120 characters), duration is optional</li>
+                            <li>Track names are optional (max 120 characters)</li>
                             <li>Duration format: MM:SS (e.g., 3:45 for 3 minutes 45 seconds)</li>
                             <li>You can add tracks later by editing the album</li>
                         </ul>
@@ -447,6 +550,30 @@ $artists_result = $conn->query("SELECT ArtistId, Name FROM artists ORDER BY Name
     </div>
 
     <script>
+        function toggleArtistFields() {
+            const existingRadio = document.querySelector('input[name="artist_option"][value="existing"]');
+            const newRadio = document.querySelector('input[name="artist_option"][value="new"]');
+            const existingFields = document.getElementById('existing-fields');
+            const newFields = document.getElementById('new-fields');
+            const existingOption = document.getElementById('existing-option');
+            const newOption = document.getElementById('new-option');
+        
+            existingOption.classList.remove('selected');
+            newOption.classList.remove('selected');
+            
+          
+            existingFields.classList.remove('active');
+            newFields.classList.remove('active');
+            
+            if (existingRadio.checked) {
+                existingOption.classList.add('selected');
+                existingFields.classList.add('active');
+            } else if (newRadio.checked) {
+                newOption.classList.add('selected');
+                newFields.classList.add('active');
+            }
+        }
+        
         function addTrack() {
             const container = document.getElementById('tracksContainer');
             const trackRow = document.createElement('div');
@@ -468,46 +595,53 @@ $artists_result = $conn->query("SELECT ArtistId, Name FROM artists ORDER BY Name
             }
         }
         
-        // Add some default tracks for new albums
-        <?php if (!$isEdit): ?>
+    
         document.addEventListener('DOMContentLoaded', function() {
-            // Add a few more track rows for new albums
+            toggleArtistFields();
+            
+           
+            <?php if (!$isEdit): ?>
             addTrack();
             addTrack();
+            <?php endif; ?>
         });
-        <?php endif; ?>
         
-        // Form validation
+      
         document.getElementById('albumForm').addEventListener('submit', function(e) {
-            const trackNames = document.querySelectorAll('input[name="track_names[]"]');
-            const durations = document.querySelectorAll('input[name="track_durations[]"]');
-            let hasValidTrack = false;
+            const artistOption = document.querySelector('input[name="artist_option"]:checked');
             
-            // Check if at least one track has a name
-            trackNames.forEach(function(input) {
-                if (input.value.trim() !== '') {
-                    hasValidTrack = true;
+            if (!artistOption) {
+                alert('Please select an artist option.');
+                e.preventDefault();
+                return false;
+            }
+            
+            if (artistOption.value === 'existing') {
+                const existingArtist = document.querySelector('select[name="existing_artist"]').value;
+                if (!existingArtist) {
+                    alert('Please select an existing artist.');
+                    e.preventDefault();
+                    return false;
                 }
-            });
+            } else if (artistOption.value === 'new') {
+                const newArtistName = document.querySelector('input[name="new_artist_name"]').value.trim();
+                if (!newArtistName) {
+                    alert('Please enter a new artist name.');
+                    e.preventDefault();
+                    return false;
+                }
+            }
             
-            // Validate duration format
-            durations.forEach(function(input) {
+         
+            const durations = document.querySelectorAll('input[name="track_durations[]"]');
+            for (let input of durations) {
                 if (input.value && !input.value.match(/^\d{1,2}:\d{2}$/)) {
                     alert('Duration must be in MM:SS format (e.g., 3:45)');
                     input.focus();
                     e.preventDefault();
                     return false;
                 }
-            });
-            
-            <?php if ($tracks_exist): ?>
-            if (!hasValidTrack) {
-                if (!confirm('No tracks were added. Do you want to create an album without tracks?')) {
-                    e.preventDefault();
-                    return false;
-                }
             }
-            <?php endif; ?>
         });
     </script>
 </body>

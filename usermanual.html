@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Manual - Chinook Music Database</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        .manual-container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        h2 {
+            color: #495057;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-top: 40px;
+            font-size: 1.8rem;
+        }
+        
+        h3 {
+            color: #667eea;
+            margin-top: 25px;
+            font-size: 1.3rem;
+        }
+        
+        h4 {
+            color: #495057;
+            margin-top: 20px;
+            font-size: 1.1rem;
+        }
+        
+        .feature-list {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e6f3ff 100%);
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+        }
+        
+        .step {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 12px 0;
+            border-left: 4px solid #28a745;
+            box-shadow: 0 2px 4px rgba(40, 167, 69, 0.1);
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, #fff3cd 0%, #fef9e7 100%);
+            padding: 18px;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            margin: 12px 0;
+            box-shadow: 0 2px 4px rgba(255, 193, 7, 0.1);
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f0f8ff 100%);
+            padding: 18px;
+            border-radius: 8px;
+            border-left: 4px solid #2196f3;
+            margin: 12px 0;
+            box-shadow: 0 2px 4px rgba(33, 150, 243, 0.1);
+        }
+        
+        .artist-workflow {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+            margin: 20px 0;
+        }
+        
+        .workflow-option {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border-left: 3px solid #667eea;
+        }
+        
+        code {
+            background: #f1f3f4;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #d63384;
+            font-weight: 500;
+        }
+        
+        .toc {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            margin: 20px 0;
+        }
+        
+        .toc ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .toc a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        
+        .quick-ref {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+            padding: 25px;
+            border-radius: 10px;
+            border: 2px solid #28a745;
+            margin: 30px 0;
+        }
+        
+        .quick-ref h4 {
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+        
+        .badge {
+            background: #667eea;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .new-feature {
+            background: #28a745;
+        }
+        
+        ul li {
+            margin-bottom: 8px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 2px solid #dee2e6;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="manual-container">
+        <h1>🎵 Chinook Music Database</h1>
+        <p style="text-align: center; font-size: 1.2rem; color: #6c757d; margin-bottom: 30px;">
+            <em>Complete User Manual & Guide</em>
+        </p>
+        
+        <div class="toc">
+            <h2 style="margin-top: 0; border: none; color: #495057;">📋 Table of Contents</h2>
+            <ul>
+                <li><a href="#overview">🎯 System Overview</a></li>
+                <li><a href="#getting-started">🚀 Getting Started</a></li>
+                <li><a href="#viewing-albums">👁️ Viewing Albums</a></li>
+                <li><a href="#searching-filtering">🔍 Searching and Filtering</a></li>
+                <li><a href="#managing-albums">📀 Managing Albums</a></li>
+                <li><a href="#artist-management">🎤 Artist Management</a></li>
+                <li><a href="#managing-tracks">🎵 Managing Tracks</a></li>
+                <li><a href="#database-features">🔧 Database Features</a></li>
+                <li><a href="#troubleshooting">❗ Troubleshooting</a></li>
+                <li><a href="#quick-reference">⚡ Quick Reference</a></li>
+            </ul>
+        </div>
+        
+        <h2 id="overview">🎯 System Overview</h2>
+        <p>The Chinook Music Database is a comprehensive web application designed for managing music collections. It provides full CRUD (Create, Read, Update, Delete) functionality for albums, artists, and tracks.</p>
+        
+        <div class="feature-list">
+            <h4>✨ Key Features:</h4>
+            <ul>
+                <li>📚 <strong>Album Management:</strong> View, add, edit, and delete albums</li>
+                <li>🎤 <strong>Artist Management:</strong> Create new artists or select existing ones <span class="badge new-feature">NEW</span></li>
+                <li>🎵 <strong>Track Management:</strong> Add multiple tracks with durations to albums</li>
+                <li>🔍 <strong>Advanced Search:</strong> Search by album title or artist name</li>
+                <li>🎯 <strong>Smart Filtering:</strong> Filter albums by specific artists</li>
+                <li>📊 <strong>Flexible Sorting:</strong> Sort by date, title, artist, or ID</li>
+                <li>📅 <strong>Timestamp Tracking:</strong> See newest albums first</li>
+                <li>📱 <strong>Responsive Design:</strong> Works on desktop and mobile devices</li>
+                <li>🔒 <strong>Data Validation:</strong> Prevents duplicate entries and invalid data</li>
+            </ul>
+        </div>
+        
+        <h2 id="getting-started">🚀 Getting Started</h2>
+        
+        <h3>Initial Setup</h3>
+        <p>When you first access the system, you may see setup notifications. Here's how to get everything configured:</p>
+        
+        
+       
+        
+        <div class="step">
+            <strong> Start Adding Content</strong><br>
+            Click "+ Add New Album" to begin building your music collection.
+        </div>
+        
+        <h2 id="viewing-albums">👁️ Viewing Albums</h2>
+        
+        <h3>Main Albums Page</h3>
+        <p>The main interface displays your album collection in a clean, organized table format:</p>
+        
+        <div class="info-box">
+            <h4>Table Columns:</h4>
+            <ul>
+                <li><strong>Album Title:</strong> The name of the album with NEW/RECENT badges for recent additions</li>
+                <li><strong>Artist:</strong> The performing artist or band name</li>
+                <li><strong>Tracks:</strong> Total number of tracks in the album</li>
+                <li><strong>Date Added:</strong> When the album was added to the database (if enabled)</li>
+                <li><strong>Actions:</strong> View, Edit, and Delete buttons for each album</li>
+            </ul>
+        </div>
+        
+        <h3>Pagination</h3>
+        <p>Albums are displayed 6 per page with navigation controls at the bottom. The pagination shows:</p>
+        <ul>
+            <li>Current page position (e.g., "Showing 1-6 of 25 albums")</li>
+            <li>First/Previous/Next/Last navigation buttons</li>
+            <li>Direct page number links</li>
+        </ul>
+        
+        <h3>Newest Albums First Feature</h3>
+        <div class="feature-list">
+            <p>When timestamp tracking is enabled, the system automatically shows your newest albums first:</p>
+            <ul>
+                <li>🆕 <strong>NEW</strong> badge for albums added today</li>
+                <li>⏰ <strong>RECENT</strong> badge for albums added within the last week</li>
+                <li>📅 Green banner indicating "Newest albums first" sorting</li>
+                <li>📊 Sort indicator showing current sorting method</li>
+            </ul>
+        </div>
+        
+        <h2 id="searching-filtering">🔍 Searching and Filtering</h2>
+        
+        <h3>Search Functionality</h3>
+        <div class="step">
+            <strong>Basic Search:</strong><br>
+            Enter any text in the search box to find albums by title or artist name. The search is case-insensitive and matches partial text.
+        </div>
+        
+        <div class="step">
+            <strong>Apply Search:</strong><br>
+            Click the "Search" button to execute your search query.
+        </div>
+        
+        <div class="step">
+            <strong>Clear Results:</strong><br>
+            Click "Clear" to reset all filters and return to the full album list.
+        </div>
+        
+        <h3>Artist Filtering</h3>
+        <p>Use the artist dropdown to show albums from a specific artist:</p>
+        <div class="step">
+            <strong>Step 1:</strong> Select an artist from the "All Artists" dropdown
+        </div>
+        <div class="step">
+            <strong>Step 2:</strong> Click "Search" to apply the filter
+        </div>
+        <div class="step">
+            <strong>Step 3:</strong> Combine with text search for more specific results
+        </div>
+        
+        <h3>Sorting Options</h3>
+        <div class="info-box">
+            <h4>Available Sort Methods:</h4>
+            <ul>
+                <li><strong>Date Added (Newest First):</strong> Default when timestamps are enabled</li>
+                <li><strong>Sort by ID:</strong> Numerical order based on database ID</li>
+                <li><strong>Sort by Title:</strong> Alphabetical order by album name</li>
+                <li><strong>Sort by Artist:</strong> Alphabetical order by artist name</li>
+            </ul>
+            <p>Each sort can be applied in ascending or descending order using the order dropdown.</p>
+        </div>
+        
+        <h2 id="managing-albums">📀 Managing Albums</h2>
+        
+        <h3>Adding a New Album</h3>
+        <p>Creating a new album is a streamlined process that includes artist and track management:</p>
+        
+        <div class="step">
+            <strong>Step 1: Start Creation</strong><br>
+            Click the "+ Add New Album" button from the main page.
+        </div>
+        
+        <div class="step">
+            <strong>Step 2: Enter Album Details</strong><br>
+            Fill in the album title (maximum 95 characters). This field is required.
+        </div>
+        
+        <div class="step">
+            <strong>Step 3: Handle Artist (See Artist Management section)</strong><br>
+            Choose between selecting an existing artist or creating a new one.
+        </div>
+        
+        <div class="step">
+            <strong>Step 4: Add Tracks (Optional)</strong><br>
+            Use the tracks section to add individual songs with names and durations.
+        </div>
+        
+        <div class="step">
+            <strong>Step 5: Save</strong><br>
+            Click "Save Album & Tracks" to create the album and all associated data.
+        </div>
+        
+        <h3>Editing an Album</h3>
+        <div class="warning">
+            <strong>Important:</strong> When editing an album, all existing tracks will be replaced with the new track list you provide.
+        </div>
+        
+        <div class="step">
+            <strong>Step 1:</strong> Click the "Edit" button next to any album
+        </div>
+        <div class="step">
+            <strong>Step 2:</strong> Modify the album title, artist selection, or track listing
+        </div>
+        <div class="step">
+            <strong>Step 3:</strong> Review the "Current Tracks" section to see what will be replaced
+        </div>
+        <div class="step">
+            <strong>Step 4:</strong> Click "Update Album & Tracks" to save changes
+        </div>
+        
+        <h3>Viewing Album Details</h3>
+        <p>The album detail view provides comprehensive information:</p>
+        <ul>
+            <li><strong>Album Information:</strong> Title, artist, and action buttons</li>
+            <li><strong>Track Listing:</strong> Complete list with track numbers, names, and durations</li>
+            <li><strong>Album Statistics:</strong> Total tracks and total duration</li>
+            <li><strong>Quick Actions:</strong> Edit and Delete buttons</li>
+        </ul>
+        
+        <h3>Deleting an Album</h3>
+        <div class="warning">
+            <strong>⚠️ Warning:</strong> Deleting an album permanently removes the album and ALL associated tracks. This action cannot be undone.
+        </div>
+        
+        <div class="step">
+            <strong>Step 1:</strong> Click the "Delete" button next to an album
+        </div>
+        <div class="step">
+            <strong>Step 2:</strong> Review the deletion confirmation page showing album details and track count
+        </div>
+        <div class="step">
+            <strong>Step 3:</strong> Click "Yes, Delete Album" to confirm, or "Cancel" to abort
+        </div>
+        <div class="step">
+            <strong>Step 4:</strong> System will show confirmation and redirect to the main page
+        </div>
+        
+        <h2 id="artist-management">🎤 Artist Management</h2>
+        
+        <div class="artist-workflow">
+            <h3>🆕 New Artist Creation Workflow</h3>
+            <p>The system now offers two convenient ways to handle artists when creating or editing albums:</p>
+            
+            <div class="workflow-option">
+                <h4>Option 1: Select Existing Artist</h4>
+                <ul>
+                    <li>Choose this option when the artist already exists in your database</li>
+                    <li>Select from the dropdown list of all current artists</li>
+                    <li>Artists are listed alphabetically for easy browsing</li>
+                    <li>Best for adding additional albums by artists you already have</li>
+                </ul>
+            </div>
+            
+            <div class="workflow-option">
+                <h4>Option 2: Add New Artist <span class="badge new-feature">NEW</span></h4>
+                <ul>
+                    <li>Choose this option when adding an artist not yet in your database</li>
+                    <li>Simply type the new artist name (maximum 120 characters)</li>
+                    <li>The artist will be created automatically when you save the album</li>
+                    <li>System prevents duplicate artists by checking existing names</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h3>Artist Selection Process</h3>
+        <div class="step">
+            <strong>Step 1: Choose Method</strong><br>
+            Select either "Select Existing Artist" or "Add New Artist" radio button.
+        </div>
+        
+        <div class="step">
+            <strong>Step 2a: For Existing Artists</strong><br>
+            Use the dropdown to select from your current artist list.
+        </div>
+        
+        <div class="step">
+            <strong>Step 2b: For New Artists</strong><br>
+            Type the artist name in the text field. The system will validate it's not a duplicate.
+        </div>
+        
+        <div class="step">
+            <strong>Step 3: Validation</strong><br>
+            The system automatically checks for duplicates and validates the artist information.
+        </div>
+        
+        <h3>Artist Validation Rules</h3>
+        <div class="info-box">
+            <ul>
+                <li><strong>Name Length:</strong> Artist names must be 120 characters or less</li>
+                <li><strong>Duplicate Prevention:</strong> Cannot create artists with identical names</li>
+                <li><strong>Required Field:</strong> Artist selection/creation is mandatory for all albums</li>
+                <li><strong>Automatic Creation:</strong> New artists are created in the same transaction as the album</li>
+            </ul>
+        </div>
+        
+        <h2 id="managing-tracks">🎵 Managing Tracks</h2>
+        
+        <h3>Adding Tracks to Albums</h3>
+        <p>The track management system is integrated into the album creation/editing process:</p>
+        
+        <div class="step">
+            <strong>Track Name:</strong> Enter the song title (maximum 120 characters, optional)
+        </div>
+        
+        <div class="step">
+            <strong>Duration:</strong> Enter time in MM:SS format (e.g., 3:45 for 3 minutes 45 seconds)
+        </div>
+        
+        <div class="step">
+            <strong>Add More Tracks:</strong> Click "+ Add Another Track" to create additional track rows
+        </div>
+        
+        <div class="step">
+            <strong>Remove Tracks:</strong> Click the "×" button to remove unwanted track rows
+        </div>
+        
+        <h3>Track Input Guidelines</h3>
+        <div class="info-box">
+            <h4>Best Practices:</h4>
+            <ul>
+                <li><strong>Duration Format:</strong> Always use MM:SS (e.g., 3:45, 12:30)</li>
+                <li><strong>Track Names:</strong> Optional but recommended for complete albums</li>
+                <li><strong>Order:</strong> Tracks are numbered automatically in the order you enter them</li>
+                <li><strong>Flexibility:</strong> You can add tracks later by editing the album</li>
+            </ul>
+        </div>
+        
+        <h3>Track Display Features</h3>
+        <p>In the album detail view, tracks are displayed with:</p>
+        <ul>
+            <li><strong>Track Number:</strong> Automatic sequential numbering</li>
+            <li><strong>Track Name:</strong> Song title as entered</li>
+            <li><strong>Duration:</strong> Formatted as minutes:seconds</li>
+            <li><strong>Album Statistics:</strong> Total track count and combined duration</li>
+        </ul>
+        
+        <h2 id="database-features">🔧 Database Features</h2>
+        
+        <h3>Timestamp Tracking</h3>
+        <p>The system can track when albums are added to show the newest content first:</p>
+        
+        <div class="step">
+            <strong>Enable Feature:</strong> Click the "Add timestamp tracking" link when prompted
+        </div>
+        <div class="step">
+            <strong>Automatic Timestamps:</strong> New albums automatically get creation timestamps</li>
+        </div>
+        <div class="step">
+            <strong>Existing Albums:</strong> Older albums get realistic backdated timestamps</li>
+        </div>
+        <div class="step">
+            <strong>Reset Option:</strong> Use reset_timestamps.php to reassign random dates for testing</li>
+        </div>
+        
+        <h3>Database Setup Tools</h3>
+        <div class="feature-list">
+            <h4>Available Setup Scripts:</h4>
+            <ul>
+                <li><strong>setup_database.php:</strong> Creates tracks, media_types, and genres tables</li>
+                <li><strong>add_created_at.php:</strong> Adds timestamp tracking to albums</li>
+                <li><strong>reset_timestamps.php:</strong> Resets all album timestamps for testing</li>
+            </ul>
+        </div>
+        
+        <h2 id="troubleshooting">❗ Troubleshooting</h2>
+        
+        <h3>Common Issues and Solutions</h3>
+        
+        <div class="warning">
+            <strong>Problem:</strong> "created_at column not found"<br>
+            <strong>Solution:</strong> Click the setup link in the notification banner to enable timestamp tracking.
+        </div>
+        
+        <div class="warning">
+            <strong>Problem:</strong> "Tracks table not found"<br>
+            <strong>Solution:</strong> Visit <code>setup_database.php</code> to create all missing database tables.
+        </div>
+        
+        <div class="warning">
+            <strong>Problem:</strong> "Duration format error"<br>
+            <strong>Solution:</strong> Use MM:SS format exactly (e.g., 3:45 for 3 minutes 45 seconds, not 3.45 or 3:4).
+        </div>
+        
+        <div class="warning">
+            <strong>Problem:</strong> "Artist with this name already exists"<br>
+            <strong>Solution:</strong> Switch to "Select Existing Artist" option and choose the artist from the dropdown.
+        </div>
+        
+        <div class="warning">
+            <strong>Problem:</strong> "Please select an artist option"<br>
+            <strong>Solution:</strong> Choose either "Select Existing Artist" or "Add New Artist" radio button before saving.
+        </div>
+        
+        <div class="warning">
+            <strong>Problem:</strong> "This artist already has an album with this title"<br>
+            <strong>Solution:</strong> Change either the album title or select a different artist to avoid duplicates.
+        </div>
+        
+        <h3>Form Validation Errors</h3>
+        <div class="info-box">
+            <p>The system validates all input to maintain data quality:</p>
+            <ul>
+                <li><strong>Required Fields:</strong> Album title and artist selection are mandatory</li>
+                <li><strong>Length Limits:</strong> Album titles (95 chars), Artist names (120 chars), Track names (120 chars)</li>
+                <li><strong>Format Validation:</strong> Duration must be in MM:SS format</li>
+                <li><strong>Duplicate Prevention:</strong> Same artist cannot have multiple albums with identical titles</li>
+            </ul>
+        </div>
+        
+        <h2 id="quick-reference">⚡ Quick Reference</h2>
+        
+        <div class="quick-ref">
+            <h4>🎯 Essential Actions</h4>
+            <ul>
+                <li><strong>Add Album:</strong> Main page → "+ Add New Album" → Fill form → Save</li>
+                <li><strong>Add New Artist:</strong> Album form → "Add New Artist" → Enter name → Save album</li>
+                <li><strong>Use Existing Artist:</strong> Album form → "Select Existing Artist" → Choose from dropdown</li>
+                <li><strong>Search Albums:</strong> Enter term in search box → "Search"</li>
+                <li><strong>Filter by Artist:</strong> Select artist from dropdown → "Search"</li>
+                <li><strong>Sort Albums:</strong> Choose sort method → Select order → "Search"</li>
+                <li><strong>View Album:</strong> Click "View" button → See details and tracks</li>
+                <li><strong>Edit Album:</strong> Click "Edit" button → Modify → "Update Album & Tracks"</li>
+                <li><strong>Delete Album:</strong> Click "Delete" → Confirm deletion</li>
+                <li><strong>Clear Filters:</strong> Click "Clear" button → Return to full list</li>
+            </ul>
+        </div>
+        
+        <div class="quick-ref">
+            <h4>🎵 Track Management</h4>
+            <ul>
+                <li><strong>Add Track:</strong> Enter name and duration → Click "+ Add Another Track"</li>
+                <li><strong>Remove Track:</strong> Click "×" button on track row</li>
+                <li><strong>Duration Format:</strong> MM:SS (e.g., 3:45, 12:30)</li>
+                <li><strong>Track Limit:</strong> Must keep at least one track row</li>
+            </ul>
+        </div>
+        
+      
+        
+        <div class="footer">
+            <h3>🎵 Chinook Music Database</h3>
+            <p><strong>Version 2.0</strong> - Enhanced with Artist Management</p>
+            <p><em>Complete Music Collection Management System</em></p>
+            <p style="margin-top: 20px; font-size: 0.9rem;">
+                For technical support or feature requests, please contact your system administrator.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
